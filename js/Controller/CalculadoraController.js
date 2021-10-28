@@ -6,13 +6,72 @@ class CalculadoraController {
         this.iniciar();
         this.initAddEventosBotoes();
     }
+    attDisplay(){
+        const expressaoDisplay = document.querySelector("#expressao");
 
+        expressaoDisplay.innerHTML = this._listaExpressao.join("", ".");
+        expressaoDisplay.scrollBy(100, 0);
+    };
+    
     attData() {
         const date = new Date();
-
+        
         this._dataEl.innerHTML = date.toLocaleDateString("pt-BR");
         this._horaEl.innerHTML = date.toLocaleTimeString("pt-BR");
     };
+
+    allClear() {
+        this._listaExpressao = ["0"];
+        this.attDisplay();
+    };
+
+    delete() {
+        this._listaExpressao[this._listaExpressao.length-1] =  this.retornaUltimo().slice(0, -1);
+
+        if(this.retornaUltimo() == "") {
+            if(this._listaExpressao.length == 1){
+                this._listaExpressao = ["0"];
+            }else{
+                this._listaExpressao.pop();
+            };
+        };
+        this.attDisplay();
+    };
+
+    retornaUltimo() {
+        return this._listaExpressao[this._listaExpressao.length - 1];
+    };
+
+    verifSeOperador(val) {
+        return ["+", "-", "÷", "×"].indexOf(val) > -1;
+    };
+
+    addValoresExpressao(val) {
+        if (this.verifSeOperador(val)) {
+
+            if(this.verifSeOperador(this.retornaUltimo())){
+                this._listaExpressao[this._listaExpressao.length - 1] = val; 
+            }else{
+                this._listaExpressao.push(val);
+            };
+        } else {
+            if (this.verifSeOperador(this.retornaUltimo())) {
+                this._listaExpressao.push(val);
+            } else {
+                if(this.retornaUltimo() == "0" && val.toString() != "."){
+                    this._listaExpressao[this._listaExpressao.length-1] = "";
+                };
+                if(this.retornaUltimo().indexOf(".")>-1 && val.toString() == "."){
+                    return;
+                };
+                this._listaExpressao[this._listaExpressao.length - 1] += val.toString();
+            };
+        };
+       this.iniciar();
+       this.attData();
+       
+    };
+
 
     iniciar() {
         this.attData();
@@ -20,6 +79,18 @@ class CalculadoraController {
             this.attData();
         }, 1000);
 
+       this.attDisplay();
+    };
+
+    inverse(){
+        if(this.verifSeOperador(this.retornaUltimo())){
+            this._listaExpressao.pop();
+        };
+        if(this.retornaUltimo() == "0"){
+                return;
+            };
+            this._listaExpressao[this._listaExpressao.length-1] = (1/this.retornaUltimo()).toString();
+            this.attDisplay();
     };
 
     initAddEventosBotoes() {
@@ -30,14 +101,15 @@ class CalculadoraController {
                 const valor = botao.innerHTML;
                 switch (valor) {
                     case "AC":
-                        //apaga td
+                        this.allClear();
                         break;
                     case "backspace":
-                        //apaga 1
+                        this.delete();
                         break;
                     case "=":
                         break;
                     case "1/x":
+                        this.inverse();
                         break;
                     case "+":
                     case "-":
@@ -54,7 +126,7 @@ class CalculadoraController {
                     case "9":
                     case "0":
                     case ".":
-                        //adicionar na lista da expressao
+                        this.addValoresExpressao(valor);
                         break;
                 }
             })
