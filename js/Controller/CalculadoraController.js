@@ -93,6 +93,60 @@ class CalculadoraController {
             this.attDisplay();
     };
 
+    calculate(){
+        
+        for(let i = 0;i < this._listaExpressao.length; i+=2){
+            this._listaExpressao[i] = parseFloat(this._listaExpressao[i]);
+        };
+
+        
+        while(this.multIndexOf(this._listaExpressao, ["÷", "×"])[0]>-1){
+            let operation = this.multIndexOf(this._listaExpressao, ["÷", "×"]);
+            let result;
+            switch(operation[1]){
+                case "÷":
+                    result = this._listaExpressao[operation[0]-1]/this._listaExpressao[operation[0]+1];
+                    break;
+                case "×":
+                    result = this._listaExpressao[operation[0]-1]*this._listaExpressao[operation[0]+1];
+                    break;
+            };
+            
+            this._listaExpressao.splice(operation[0]-1, 3, result);
+        };
+        
+        
+        while(this.multIndexOf(this._listaExpressao, ["+", "-"])[0]>-1){
+            let operation = this.multIndexOf(this._listaExpressao, ["+", "-"]);
+            let result;
+            switch(operation[1]){
+                case "+":
+                    result = this._listaExpressao[operation[0]-1]+this._listaExpressao[operation[0]+1];
+                    break;
+                case "-":
+                    result = this._listaExpressao[operation[0]-1]-this._listaExpressao[operation[0]+1];
+                    break;
+            };
+            
+            this._listaExpressao.splice(operation[0]-1, 3, result);
+        };
+        
+    };
+
+    multIndexOf(mainArr, arr){
+        for(let i = 0; i<mainArr.length; i++){
+            let value = mainArr[i];
+
+            for(let i2 = 0; i2<arr.length; i2++){
+                let value2 = arr[i2];
+                if(value == value2){
+                    return [i, value2];
+                };
+            };
+        };
+        return [-1, ""];
+    };
+
     initAddEventosBotoes() {
         const botoes = document.querySelectorAll("table.botoes td");
 
@@ -107,6 +161,7 @@ class CalculadoraController {
                         this.delete();
                         break;
                     case "=":
+                        this.calculate()
                         break;
                     case "1/x":
                         this.inverse();
@@ -128,7 +183,7 @@ class CalculadoraController {
                     case ".":
                         this.addValoresExpressao(valor);
                         break;
-                }
+                };
             })
 
         });
